@@ -1,1 +1,1 @@
-react 应用开发脚手架
+AnimeGo 前端
