@@ -1,13 +1,17 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
+import ReactDOM from "react-dom";
 import App from "./layout";
+import { ConfigProvider, DatePicker, message } from "antd";
+import zhCN from "antd/locale/zh_CN";
+import "@/css/index.css";
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
+const root = document.getElementById("root");
 
-root.render(
+ReactDOM.render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>
+    <ConfigProvider locale={zhCN}>
+      <App />
+    </ConfigProvider>
+  </React.StrictMode>,
+  root
 );

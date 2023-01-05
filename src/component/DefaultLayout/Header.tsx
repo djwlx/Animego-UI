@@ -1,20 +1,19 @@
 import React, { FC } from "react";
-import { Nav, Avatar, Dropdown } from "@douyinfe/semi-ui";
+import { Layout, Avatar, Space } from "antd";
 
-const Header: FC = () => {
+const { Header } = Layout;
+
+const Head: FC = () => {
   return (
-    <div style={{ width: "100%", position: "fixed" }}>
-      <Nav
-        mode={"horizontal"}
-        onSelect={(key) => console.log(key)}
-        header={{
-          logo: (
-            <img src="https://sf6-cdn-tos.douyinstatic.com/obj/eden-cn/ptlz_zlp/ljhwZthlaukjlkulzlp/root-web-sites/webcast_logo.svg" />
-          ),
-          text: "个人中心",
-        }}
-      />
-    </div>
+    <Header
+      style={{
+        backgroundColor: "red",
+      }}
+    >
+      <Space>
+        <span style={{ fontSize: 20 }}>AnimeGo</span>
+      </Space>
+    </Header>
   );
 };
-export default Header;
+export default Head;

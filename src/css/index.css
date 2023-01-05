@@ -1,5 +1,6 @@
 @import "./reset.css";
-@import "~@douyinfe/semi-ui/dist/css/semi.min.css";
+@import "antd/dist/reset.css";
+
 #root {
   height: 100%;
 }

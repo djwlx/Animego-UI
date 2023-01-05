@@ -1,32 +1,39 @@
-import React, { FC } from "react";
-import style from "./index.module.scss";
-import Headers from "./Header";
+import React from "react";
+import { Breadcrumb, Layout, Menu, MenuProps, theme } from "antd";
+import Head from "./Header";
 import SideBar from "./SideBar";
-import { Layout } from "@douyinfe/semi-ui";
-import { Outlet } from "react-router-dom";
 
-const ReactComponent: FC = () => {
-  const { Header, Sider, Content } = Layout;
-  
-  console.log(ReactDom.findDOMNode(this.refs.tip))
+const { Content } = Layout;
+
+const App: React.FC = () => {
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
 
   return (
-    <Layout className={style.layout}>
-      <Header>
-        <Headers />
-      </Header>
-      <Layout style={{ marginTop: 60 }}>
-        <Sider>
-          <div style={{ display: "flex" }}>
-			<div style={{ width: "240px", overflow: "hidden", flex: "0 0 240px", maxWidth: "240px", minWidth: "240px", transition: "background-color 0.3s ease 0s, min-width 0.3s ease 0s, max-width 0.3s cubic-bezier(0.645, 0.045, 0.355, 1) 0s" }}></div>
-			<SideBar />
-          </div>
-        </Sider>
-        <Content style={{ padding: 10 }}>
-          <Outlet />
-        </Content>
+    <Layout>
+      <Head />
+      <Layout>
+        <SideBar />
+        <Layout style={{ padding: "0 24px 24px" }}>
+          <Breadcrumb style={{ margin: "16px 0" }}>
+            <Breadcrumb.Item>主页</Breadcrumb.Item>
+            <Breadcrumb.Item>视频</Breadcrumb.Item>
+          </Breadcrumb>
+          <Content
+            style={{
+              padding: 24,
+              margin: 0,
+              minHeight: 980,
+              background: colorBgContainer,
+            }}
+          >
+            内容
+          </Content>
+        </Layout>
       </Layout>
     </Layout>
   );
 };
-export default ReactComponent;
+
+export default App;
