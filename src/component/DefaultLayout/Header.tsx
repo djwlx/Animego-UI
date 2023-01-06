@@ -5,13 +5,9 @@ const { Header } = Layout;
 
 const Head: FC = () => {
   return (
-    <Header
-      style={{
-        backgroundColor: "red",
-      }}
-    >
+    <Header>
       <Space>
-        <span style={{ fontSize: 20 }}>AnimeGo</span>
+        <span style={{ fontSize: 20, color: "white" }}>AnimeGo</span>
       </Space>
     </Header>
   );
