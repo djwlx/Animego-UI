@@ -1,6 +1,6 @@
-import { RouteObject } from "react-router-dom";
 import React from "react";
-import DefaultLayout from "@/component/DefaultLayout";
+import { RouteObject } from "react-router-dom";
+import { DefaultLayout } from "@/component";
 import Index from "@/pages";
 import Second from "@/pages/second";
 

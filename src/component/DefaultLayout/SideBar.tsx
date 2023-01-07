@@ -1,5 +1,6 @@
 import { Layout, Menu, MenuProps, theme } from "antd";
 import React, { FC, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const items: MenuProps["items"] = [
   {
@@ -11,12 +12,26 @@ const items: MenuProps["items"] = [
     key: "setting",
   },
 ];
+const urlMap: { [key: string]: string } = {
+  video: "/",
+  setting: "/second",
+};
 const { Sider } = Layout;
 
 const ReactComponent: FC = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+  const [selectKeys, setSelectKeys] = useState<string[]>(["video"]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    for (let i in urlMap) {
+      if (location.pathname === urlMap[i]) {
+        setSelectKeys([i]);
+      }
+    }
+  }, [location.pathname]);
 
   return (
     <Sider
@@ -27,9 +42,13 @@ const ReactComponent: FC = () => {
     >
       <Menu
         mode="inline"
-        defaultSelectedKeys={["video"]}
+        selectedKeys={selectKeys}
         items={items}
         style={{ height: "100%", borderRight: 0 }}
+        onClick={(item) => {
+          setSelectKeys([item.key]);
+          navigate(urlMap[item.key]);
+        }}
       />
     </Sider>
   );
