@@ -4,12 +4,12 @@ import { getConfig } from "@/service";
 import { Select, Switch, Tree, Tooltip, Input, Space } from "antd";
 import type { DataNode } from "antd/es/tree";
 import { encode, decode } from "js-base64";
-import { isObject, set, findKey, get } from "lodash-es";
+import { isObject, set, findKey, get, cloneDeep } from "lodash-es";
 
 const ReactComponent: FC = () => {
   const [configData, setConfigData] = useState<any>([]);
   const [configComments, setConfigComments] = useState<string>();
-
+  console.log(isObject([]));
   const transTree = (data: any, comment: any) => {
     if (!data || !comment) {
       return [];
@@ -22,8 +22,9 @@ const ReactComponent: FC = () => {
       return arr.findIndex((item: any) => item.key === name);
     };
 
-    const deepGet = (node: any, path: string) => {
-      if (!isObject(node)) {
+    const deepGet = (node: { [key: string]: any }, path: string) => {
+      if (!isObject(node) || Array.isArray(node)) {
+        const isArray = Array.isArray(node);
         const settingPath = path.split(".").slice(0, -1);
         // 根据路径加入树
         let temparray: any = result;
@@ -48,8 +49,17 @@ const ReactComponent: FC = () => {
                   </Tooltip>
                   {index === settingPath.length - 1 && (
                     <>
+                      {isArray && "(数组)"}
                       :
-                      <Input value={get(data, urlKey)} />
+                      <Input
+                        value={get(data, urlKey)}
+                        onChange={(e) => {
+                          const cloneData = cloneDeep(configData);
+                          const value = e.target.value;
+                          set(cloneData, urlKey, value);
+                          setConfigData(cloneData);
+                        }}
+                      />
                     </>
                   )}
                 </Space>
