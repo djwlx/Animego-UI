@@ -282,3 +282,137 @@ export const a = [
     ],
   },
 ];
+
+const treansTree2 = (data: any, comment: any) => {
+  if (!data || !comment) {
+    return [];
+  }
+  const commentObj = JSON.parse(comment);
+  // console.log(data, commentObj);
+  const result: DataNode[] = [];
+  console.log(data, commentObj);
+
+  const tempArr = result as any;
+
+  // 遍历对象获取多叉树以及对象和多叉树路径
+  const deepGet = (
+    node: { [key: string]: any },
+    temp: any,
+    path: string,
+    accessPath: string
+  ) => {
+    for (let i in node) {
+      const objPathString = path ? path + "." + i : i;
+      const nodeIndex = temp.length;
+      const accessPathString = accessPath
+        ? accessPath + "." + "children" + `[${nodeIndex}]`
+        : `[${nodeIndex}]`;
+
+      if (isObject(node[i]) && !Array.isArray(node[i])) {
+        temp.push({
+          title: i,
+          key: objPathString,
+          access: accessPathString,
+          children: [],
+        });
+
+        deepGet(
+          node[i],
+          temp[nodeIndex].children,
+          objPathString,
+          accessPathString
+        );
+      } else {
+        temp.push({
+          title: i,
+          key: objPathString,
+          access: accessPathString,
+        });
+      }
+    }
+  };
+  deepGet(data, tempArr, "", "");
+  console.log(tempArr, "递归结果");
+};
+const transTree = (data: any, comment: any) => {
+  if (!data || !comment) {
+    return [];
+  }
+  const commentObj = JSON.parse(comment);
+  // console.log(data, commentObj);
+  const result: DataNode[] = [];
+
+  const getIndexByname = (arr: any, name: any) => {
+    return arr.findIndex((item: any) => item.key === name);
+  };
+
+  const deepGet = (node: { [key: string]: any }, path: string) => {
+    if (!isObject(node) || Array.isArray(node)) {
+      const isArray = Array.isArray(node);
+      const settingPath = path.split(".").slice(0, -1);
+      // 根据路径加入树
+      let temparray: any = result;
+      let urlKey = "";
+      settingPath?.forEach((key: string, index: number) => {
+        urlKey = index !== 0 ? urlKey + "." + key : key;
+        let keyIndex = getIndexByname(temparray, urlKey);
+        // 没有children属性
+        if (keyIndex === -1) {
+          let commentKey1 = urlKey + "._comment";
+          let commentKey2 = urlKey;
+          const parseTitle =
+            get(commentObj, commentKey1) || get(commentObj, commentKey2) || "";
+
+          temparray.push({
+            title: (
+              <Space>
+                <Tooltip title={parseTitle}>
+                  <span>{key}</span>
+                </Tooltip>
+                {index === settingPath.length - 1 && (
+                  <>
+                    {isArray && "(数组)"}
+                    :
+                    <Input
+                      value={get(data, urlKey)}
+                      onChange={(e) => {
+                        const cloneData = cloneDeep(configData);
+                        const value = e.target.value;
+                        set(cloneData, urlKey, value);
+                        setConfigData(cloneData);
+                      }}
+                    />
+                  </>
+                )}
+              </Space>
+            ),
+            key: urlKey,
+          });
+
+          let keyIndex2 = getIndexByname(temparray, urlKey);
+          if (
+            temparray[keyIndex2]?.children &&
+            temparray[keyIndex2]?.children?.length !== 0
+          ) {
+            temparray = temparray[keyIndex2]?.children;
+          } else {
+            if (index !== settingPath.length - 1) {
+              temparray[keyIndex2].children = [];
+              temparray = temparray[keyIndex2]?.children;
+            }
+          }
+        } else {
+          temparray = temparray[keyIndex]?.children;
+        }
+        //
+      });
+    } else {
+      for (let i in node) {
+        deepGet(node[i], path + i + ".");
+      }
+    }
+  };
+  deepGet(data, "");
+  console.log(result, "原始函数转换结果");
+  return result;
+};
