@@ -1,8 +1,15 @@
 import { Tree } from "antd";
 import type { DataNode } from "antd/es/tree";
 import { isObject, set, findKey, get, cloneDeep } from "lodash-es";
-import React, { FC, useState, useEffect } from "react";
-import { defaultRender } from "./defaultRender";
+import React, {
+  FC,
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
+import { DefaultRender } from "./defaultRender";
 interface YamlEditorProps {
   YamlData: any; //yaml格式的数据结构
   configData: any; //同结构的配置文件
@@ -10,21 +17,27 @@ interface YamlEditorProps {
     title: string,
     value?: [] | string | number | boolean,
     config?: any
-  ) => string | Element; //自定义渲染
+  ) => string | Element; //自定义渲染(后续补充)
   onChange?: () => void;
 }
 
-const YamlEditor: FC<YamlEditorProps> = (props) => {
-  const { YamlData, configData, renderItem = defaultRender } = props;
+const YamlEditor: FC<YamlEditorProps> = (props, ref: any) => {
+  const { YamlData, configData, renderItem } = props;
 
+  // 当前树的数据源
   const [treeData, setTreeData] = useState<any>();
+
+  // 当前yaml结构数据
+  const [yamlValue, setYamlValue] = useState<any>(cloneDeep(YamlData));
+
+  const divRef = useRef<HTMLDivElement>(null);
 
   const treansTree = (data: any, comment: any) => {
     if (!data || !comment) {
       return [];
     }
 
-    const commentObj = JSON.parse(comment);
+    const commentObj = comment;
 
     const result: DataNode[] = [];
 
@@ -48,7 +61,14 @@ const YamlEditor: FC<YamlEditorProps> = (props) => {
 
         if (isObject(node[i]) && !Array.isArray(node[i])) {
           temp.push({
-            title: renderItem(i, undefined, get(commentObj, objPathString)),
+            title: (
+              <DefaultRender
+                title={i}
+                path={objPathString}
+                value={undefined}
+                config={get(commentObj, objPathString)}
+              />
+            ),
             key: objPathString,
             access: accessPathString,
             children: [],
@@ -62,10 +82,19 @@ const YamlEditor: FC<YamlEditorProps> = (props) => {
           );
         } else {
           temp.push({
-            title: renderItem(
-              i,
-              get(data, objPathString),
-              get(commentObj, objPathString)
+            title: (
+              <DefaultRender
+                title={i}
+                value={get(data, objPathString)}
+                path={objPathString}
+                config={get(commentObj, objPathString)}
+                onChange={(path, value) => {
+                  console.log(path, value);
+                  const tempData = cloneDeep(yamlValue);
+                  set(tempData, path, value);
+                  setYamlValue(tempData);
+                }}
+              />
             ),
             key: objPathString,
             access: accessPathString,
@@ -78,16 +107,27 @@ const YamlEditor: FC<YamlEditorProps> = (props) => {
     return tempArr;
   };
 
+  // ref中返回的值,方法和属性可以被父组件调用
+  useImperativeHandle(ref, () => {
+    return {
+      getValues() {
+        return yamlValue;
+      },
+      divRef,
+    };
+  });
+
   useEffect(() => {
     setTreeData(treansTree(YamlData, configData));
+    setYamlValue(YamlData);
   }, [YamlData, configData]);
 
   return (
-    <div>
+    <div ref={divRef}>
       {treeData && treeData.length !== 0 && (
         <Tree showLine defaultExpandAll treeData={treeData} />
       )}
     </div>
   );
 };
-export default YamlEditor;
+export default forwardRef(YamlEditor as any);

@@ -1,16 +1,14 @@
-import React, { FC, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { getConfig } from "@/service";
-import { Select, Switch, Tree, Tooltip, Input, Space, Spin } from "antd";
-import type { DataNode } from "antd/es/tree";
-import { encode, decode } from "js-base64";
-import { isObject, set, findKey, get, cloneDeep } from "lodash-es";
+import React, { FC, useState, useEffect, useRef } from "react";
+import { getConfig, setConfig } from "@/service";
+import { Spin, Button, message } from "antd";
 import { YamlEditor } from "@/component";
 
 const ReactComponent: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [configData, setConfigData] = useState<any>([]);
   const [configComments, setConfigComments] = useState<string>();
+  const [messageApi, contextHolder] = message.useMessage();
+  const yamlRef = useRef<any>();
 
   // 获取配置数据
   useEffect(() => {
@@ -18,11 +16,11 @@ const ReactComponent: FC = () => {
       setLoading(true);
       let { data } = await getConfig({ key: "all" });
       if (data?.code === 200) {
-        setConfigData(data.data.config);
+        setConfigData(data.data);
       }
       let { data: comments } = await getConfig({ key: "comment" });
       if (comments?.code === 200) {
-        setConfigComments(decode(comments.data.data));
+        setConfigComments(comments.data);
       }
       setLoading(false);
     };
@@ -32,18 +30,31 @@ const ReactComponent: FC = () => {
 
   return (
     <div style={{ height: 2100 }}>
-      {/* <Link to="/">首页</Link> */}
+      {contextHolder}
       <h2>
         配置 <Spin spinning={loading}></Spin>
       </h2>
-
+      <Button
+        onClick={async () => {
+          setLoading(true);
+          const { data } = await setConfig({
+            backup: true,
+            key: "all",
+            config: yamlRef?.current?.getValues(),
+          });
+          if (data.code === 200) {
+            messageApi.success(data.msg);
+          }
+          setLoading(false);
+        }}
+        type="primary"
+      >
+        保存
+      </Button>
       <YamlEditor
+        ref={yamlRef}
         YamlData={configData}
         configData={configComments}
-        // renderItem={(title, value, config) => {
-        //   // console.log(title, config);
-        //   return value ? title + ":" + value : title;
-        // }}
       />
     </div>
   );
