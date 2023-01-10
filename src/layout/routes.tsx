@@ -8,7 +8,7 @@ export const routers: RouteObject[] = [
   {
     path: "/",
     element: <DefaultLayout />,
-    errorElement: <h1>页面404</h1>,
+    errorElement: <h1>页面发生错误</h1>,
     children: [
       {
         index: true,

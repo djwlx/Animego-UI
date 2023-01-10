@@ -37,8 +37,17 @@ const ReactComponent: FC = () => {
     <Sider
       breakpoint="lg"
       collapsedWidth="0"
-      width={200}
-      style={{ background: colorBgContainer }}
+      // width={200}
+      collapsible
+      style={{
+        background: colorBgContainer,
+        // overflow: "auto",
+        // height: "100vh",
+        // position: "sticky",
+        // left: 0,
+        // top: 60,
+        // bottom: 0,
+      }}
     >
       <Menu
         mode="inline"
