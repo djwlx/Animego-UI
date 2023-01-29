@@ -1,7 +1,7 @@
 import React from "react";
 import { Layout, theme } from "antd";
 import { Outlet, Link } from "react-router-dom";
-import Head from "./Header";
+import Header from "./Header";
 import SideBar from "./SideBar";
 import Breadcrumb from "../Breadcrumb";
 
@@ -14,11 +14,9 @@ const DefaultLayout: React.FC = () => {
 
   return (
     <Layout>
-      <Head />
+      <Header />
       <Layout>
-        <SideBar />
-        <Layout style={{ padding: "0 24px 24px" }}>
-          <Breadcrumb />
+        <Layout style={{ padding: 24 }}>
           <Content
             style={{
               padding: 24,

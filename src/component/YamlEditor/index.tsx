@@ -1,22 +1,17 @@
-import { Tree } from "antd";
+import { Tabs, TabsProps } from "antd";
 import type { DataNode } from "antd/es/tree";
-import { isObject, set, findKey, get, cloneDeep } from "lodash-es";
+import { isObject, get } from "lodash-es";
 import React, { FC, useState, useEffect } from "react";
-import { defaultRender } from "./defaultRender";
+import StyleFrom from "./StyleForm";
 interface YamlEditorProps {
   YamlData: any; //yaml格式的数据结构
   configData: any; //同结构的配置文件
-  renderItem?: (
-    title: string,
-    value?: [] | string | number | boolean,
-    config?: any
-  ) => string | Element; //自定义渲染
-  onChange?: () => void;
 }
 
-const YamlEditor: FC<YamlEditorProps> = (props) => {
-  const { YamlData, configData, renderItem = defaultRender } = props;
+const YamlEditor: FC<YamlEditorProps> = (props, ref: any) => {
+  const { YamlData, configData } = props;
 
+  // 当前树的数据源
   const [treeData, setTreeData] = useState<any>();
 
   const treansTree = (data: any, comment: any) => {
@@ -24,7 +19,7 @@ const YamlEditor: FC<YamlEditorProps> = (props) => {
       return [];
     }
 
-    const commentObj = JSON.parse(comment);
+    const commentObj = comment;
 
     const result: DataNode[] = [];
 
@@ -48,12 +43,11 @@ const YamlEditor: FC<YamlEditorProps> = (props) => {
 
         if (isObject(node[i]) && !Array.isArray(node[i])) {
           temp.push({
-            title: renderItem(i, undefined, get(commentObj, objPathString)),
+            title: i,
             key: objPathString,
             access: accessPathString,
             children: [],
           });
-
           deepGet(
             node[i],
             temp[nodeIndex].children,
@@ -62,11 +56,7 @@ const YamlEditor: FC<YamlEditorProps> = (props) => {
           );
         } else {
           temp.push({
-            title: renderItem(
-              i,
-              get(data, objPathString),
-              get(commentObj, objPathString)
-            ),
+            title: i,
             key: objPathString,
             access: accessPathString,
           });
@@ -82,11 +72,26 @@ const YamlEditor: FC<YamlEditorProps> = (props) => {
     setTreeData(treansTree(YamlData, configData));
   }, [YamlData, configData]);
 
+  // tab操作栏
+  const items: TabsProps["items"] = treeData
+    ?.map((item: any, index: number) => {
+      return {
+        key: item.key,
+        label: get(configData, item.key)._attr,
+        children: (
+          <StyleFrom
+            rowData={YamlData}
+            fieldData={treeData[index].children}
+            configData={configData}
+          />
+        ),
+      };
+    })
+    .slice(1);
+
   return (
     <div>
-      {treeData && treeData.length !== 0 && (
-        <Tree showLine defaultExpandAll treeData={treeData} />
-      )}
+      <Tabs items={items} />
     </div>
   );
 };
