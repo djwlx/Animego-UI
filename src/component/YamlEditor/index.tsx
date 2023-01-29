@@ -1,41 +1,18 @@
-import { Tabs, TabsProps, Tree } from "antd";
+import { Tabs, TabsProps } from "antd";
 import type { DataNode } from "antd/es/tree";
-import { isObject, set, findKey, get, cloneDeep } from "lodash-es";
-import React, {
-  FC,
-  useState,
-  useEffect,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-} from "react";
-import { DefaultRender } from "./defaultRender";
+import { isObject, get } from "lodash-es";
+import React, { FC, useState, useEffect } from "react";
 import StyleFrom from "./StyleForm";
 interface YamlEditorProps {
   YamlData: any; //yaml格式的数据结构
   configData: any; //同结构的配置文件
-  renderItem?: (
-    title: string,
-    value?: [] | string | number | boolean,
-    config?: any
-  ) => string | Element; //自定义渲染(后续补充)
-  onChange?: () => void;
 }
 
-const onChange = (key: string) => {
-  console.log(key);
-};
-
 const YamlEditor: FC<YamlEditorProps> = (props, ref: any) => {
-  const { YamlData, configData, renderItem } = props;
+  const { YamlData, configData } = props;
 
   // 当前树的数据源
   const [treeData, setTreeData] = useState<any>();
-
-  // 当前yaml结构数据
-  const [yamlValue, setYamlValue] = useState<any>(cloneDeep(YamlData));
-
-  const divRef = useRef<HTMLDivElement>(null);
 
   const treansTree = (data: any, comment: any) => {
     if (!data || !comment) {
@@ -66,19 +43,11 @@ const YamlEditor: FC<YamlEditorProps> = (props, ref: any) => {
 
         if (isObject(node[i]) && !Array.isArray(node[i])) {
           temp.push({
-            title: (
-              <DefaultRender
-                title={i}
-                path={objPathString}
-                value={undefined}
-                config={get(commentObj, objPathString)}
-              />
-            ),
+            title: i,
             key: objPathString,
             access: accessPathString,
             children: [],
           });
-
           deepGet(
             node[i],
             temp[nodeIndex].children,
@@ -87,20 +56,7 @@ const YamlEditor: FC<YamlEditorProps> = (props, ref: any) => {
           );
         } else {
           temp.push({
-            title: (
-              <DefaultRender
-                title={i}
-                value={get(data, objPathString)}
-                path={objPathString}
-                config={get(commentObj, objPathString)}
-                onChange={(path, value) => {
-                  console.log(path, value);
-                  const tempData = cloneDeep(yamlValue);
-                  set(tempData, path, value);
-                  setYamlValue(tempData);
-                }}
-              />
-            ),
+            title: i,
             key: objPathString,
             access: accessPathString,
           });
@@ -112,52 +68,31 @@ const YamlEditor: FC<YamlEditorProps> = (props, ref: any) => {
     return tempArr;
   };
 
-  // ref中返回的值,方法和属性可以被父组件调用
-  useImperativeHandle(ref, () => {
-    return {
-      getValues() {
-        return yamlValue;
-      },
-      divRef,
-    };
-  });
-
   useEffect(() => {
     setTreeData(treansTree(YamlData, configData));
-    setYamlValue(YamlData);
   }, [YamlData, configData]);
-  console.log(treeData);
 
-  // 一级操作栏
+  // tab操作栏
   const items: TabsProps["items"] = treeData
     ?.map((item: any, index: number) => {
-      if (index === 2 || index === 1) {
-        return {
-          key: item.key,
-          label: get(configData, item.key)._attr,
-          children: (
-            <StyleFrom
-              rowData={YamlData}
-              fieldData={treeData[index].children}
-              configData={configData}
-            />
-          ),
-        };
-      }
-      // return {
-      //   key: item.key,
-      //   label: get(configData, item.key)._attr,
-      //   children: treeData && treeData.length !== 0 && (
-      //     <Tree showLine defaultExpandAll treeData={treeData} />
-      //   ),
-      // };
+      return {
+        key: item.key,
+        label: get(configData, item.key)._attr,
+        children: (
+          <StyleFrom
+            rowData={YamlData}
+            fieldData={treeData[index].children}
+            configData={configData}
+          />
+        ),
+      };
     })
     .slice(1);
 
   return (
-    <div ref={divRef}>
-      <Tabs items={items} onChange={onChange} />
+    <div>
+      <Tabs items={items} />
     </div>
   );
 };
-export default forwardRef(YamlEditor as any);
+export default YamlEditor;

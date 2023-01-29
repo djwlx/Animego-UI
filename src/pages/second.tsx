@@ -1,14 +1,12 @@
-import React, { FC, useState, useEffect, useRef } from "react";
-import { getConfig, setConfig } from "@/service";
-import { Spin, Button, message, Tabs, TabsProps } from "antd";
+import React, { FC, useState, useEffect } from "react";
+import { getConfig } from "@/service";
+import { Spin } from "antd";
 import { YamlEditor } from "@/component";
 
 const ReactComponent: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [configData, setConfigData] = useState<any>([]);
   const [configComments, setConfigComments] = useState<string>();
-  const [messageApi, contextHolder] = message.useMessage();
-  const yamlRef = useRef<any>();
 
   // 获取配置数据
   useEffect(() => {
@@ -30,33 +28,10 @@ const ReactComponent: FC = () => {
 
   return (
     <div>
-      {contextHolder}
       <h2>
         配置 <Spin spinning={loading}></Spin>
       </h2>
-
-      <Button
-        onClick={async () => {
-          setLoading(true);
-          const { data } = await setConfig({
-            backup: true,
-            key: "all",
-            config: yamlRef?.current?.getValues(),
-          });
-          if (data.code === 200) {
-            messageApi.success(data.msg);
-          }
-          setLoading(false);
-        }}
-        type="primary"
-      >
-        保存
-      </Button>
-      <YamlEditor
-        ref={yamlRef}
-        YamlData={configData}
-        configData={configComments}
-      />
+      <YamlEditor YamlData={configData} configData={configComments} />
     </div>
   );
 };

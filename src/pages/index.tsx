@@ -5,8 +5,6 @@ const ReactComponent: FC = () => {
   return (
     <div style={{ height: 1000 }}>
       <h2>首页</h2>
-
-      {/* <button onClick={() => navigate("/second")}>跳转到配置</button> */}
     </div>
   );
 };

@@ -5,12 +5,12 @@ type FieldRenderProps = {
   type: string;
 };
 const FieldRender: FC<FieldRenderProps> = (props) => {
-  const { type } = props;
+  const { type, ...rest } = props;
   return (
     <>
-      {type === "string" && <Input />}
-      {type === "number" && <InputNumber />}
-      {type === "boolean" && <Switch />}
+      {type === "string" && <Input {...rest} />}
+      {type === "number" && <InputNumber {...rest} />}
+      {type === "boolean" && <Switch {...(rest as any)} />}
     </>
   );
 };
