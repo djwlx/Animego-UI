@@ -1,4 +1,4 @@
-import { Tree } from "antd";
+import { Tabs, TabsProps, Tree } from "antd";
 import type { DataNode } from "antd/es/tree";
 import { isObject, set, findKey, get, cloneDeep } from "lodash-es";
 import React, {
@@ -10,6 +10,7 @@ import React, {
   useImperativeHandle,
 } from "react";
 import { DefaultRender } from "./defaultRender";
+import StyleFrom from "./StyleForm";
 interface YamlEditorProps {
   YamlData: any; //yaml格式的数据结构
   configData: any; //同结构的配置文件
@@ -20,6 +21,10 @@ interface YamlEditorProps {
   ) => string | Element; //自定义渲染(后续补充)
   onChange?: () => void;
 }
+
+const onChange = (key: string) => {
+  console.log(key);
+};
 
 const YamlEditor: FC<YamlEditorProps> = (props, ref: any) => {
   const { YamlData, configData, renderItem } = props;
@@ -121,12 +126,37 @@ const YamlEditor: FC<YamlEditorProps> = (props, ref: any) => {
     setTreeData(treansTree(YamlData, configData));
     setYamlValue(YamlData);
   }, [YamlData, configData]);
+  console.log(treeData);
+
+  // 一级操作栏
+  const items: TabsProps["items"] = treeData
+    ?.map((item: any, index: number) => {
+      if (index === 2 || index === 1) {
+        return {
+          key: item.key,
+          label: get(configData, item.key)._attr,
+          children: (
+            <StyleFrom
+              rowData={YamlData}
+              fieldData={treeData[index].children}
+              configData={configData}
+            />
+          ),
+        };
+      }
+      // return {
+      //   key: item.key,
+      //   label: get(configData, item.key)._attr,
+      //   children: treeData && treeData.length !== 0 && (
+      //     <Tree showLine defaultExpandAll treeData={treeData} />
+      //   ),
+      // };
+    })
+    .slice(1);
 
   return (
     <div ref={divRef}>
-      {treeData && treeData.length !== 0 && (
-        <Tree showLine defaultExpandAll treeData={treeData} />
-      )}
+      <Tabs items={items} onChange={onChange} />
     </div>
   );
 };

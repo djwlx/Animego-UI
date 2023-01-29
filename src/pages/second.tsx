@@ -1,6 +1,6 @@
 import React, { FC, useState, useEffect, useRef } from "react";
 import { getConfig, setConfig } from "@/service";
-import { Spin, Button, message } from "antd";
+import { Spin, Button, message, Tabs, TabsProps } from "antd";
 import { YamlEditor } from "@/component";
 
 const ReactComponent: FC = () => {
@@ -29,11 +29,12 @@ const ReactComponent: FC = () => {
   }, []);
 
   return (
-    <div style={{ height: 2100 }}>
+    <div>
       {contextHolder}
       <h2>
         配置 <Spin spinning={loading}></Spin>
       </h2>
+
       <Button
         onClick={async () => {
           setLoading(true);
