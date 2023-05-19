@@ -3,6 +3,7 @@ import { RouteObject } from "react-router-dom";
 import { DefaultLayout } from "@/component";
 import Index from "@/pages";
 import Second from "@/pages/second";
+import Log from "@/pages/Log";
 
 export const routers: RouteObject[] = [
   {
@@ -17,6 +18,10 @@ export const routers: RouteObject[] = [
       {
         path: "second",
         element: <Second />,
+      },
+      {
+        path: "log",
+        element: <Log />,
       },
     ],
   },

@@ -12,10 +12,15 @@ const items: MenuProps["items"] = [
     label: "配置",
     key: "setting",
   },
+  {
+    label: "日志",
+    key: "log",
+  },
 ];
 const urlMap: { [key: string]: string } = {
   video: "/",
   setting: "/second",
+  log: "/log",
 };
 
 const Head: FC = () => {
