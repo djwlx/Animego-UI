@@ -59,6 +59,21 @@ const Log: FC = () => {
     };
   };
 
+  const getTagByText = (text: string) => {
+    switch (text) {
+      case "INFO":
+        return "success";
+      case "DEBUG":
+        return "purple";
+      case "WARN":
+        return "warning";
+      case "ERROR":
+        return "error";
+      default:
+        return "default";
+    }
+  };
+
   const renderItem = (item) => {
     const obj = formatterString(item.message);
     return (
@@ -69,12 +84,12 @@ const Log: FC = () => {
               count={<ClockCircleOutlined style={{ color: "#f5222d" }} />}
             />
             <span>{obj.time}</span>
-            <span>
-              {obj.info === "INFO" && <Tag color="success">INFO</Tag>}
-              {obj.info === "DEBUG" && <Tag color="purple">DEBUG</Tag>}
-              {obj.info === "WARN" && <Tag color="warning">WARN</Tag>}
-              {obj.info === "ERROR" && <Tag color="error">ERROR</Tag>}
-            </span>
+            <Tag
+              color={getTagByText(obj.info)}
+              style={{ width: 60, textAlign: "center" }}
+            >
+              {obj.info}
+            </Tag>
             <span>{obj.message}</span>
           </Space>
         </List.Item>
