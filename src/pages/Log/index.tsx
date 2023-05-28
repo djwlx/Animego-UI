@@ -1,7 +1,8 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import { ClockCircleOutlined } from "@ant-design/icons";
 import VirtualList from "rc-virtual-list";
-import { Badge, List, Space, Tag } from "antd";
+import { Badge, List, Space, Tag, Button } from "antd";
+import { accessKey } from "@/utils/request";
 let index = 0;
 
 enum LogType {
@@ -14,11 +15,11 @@ const Log: FC = () => {
   const [data, setData] = useState<any[]>([]);
   const [logType, setLogType] = useState<LogType>(LogType.actual);
   const [socket, setSocket] = useState<any>();
+  const [isPaused, setIsPaused] = useState<boolean>(false);
 
-  // 实时日志
-  useEffect(() => {
+  const connect = () => {
     const ws = new WebSocket(
-      "ws://localhost:7991/websocket/log?access_key=10464d5c99713773e5c0480e628927198ce5b92d0754a411cb602ad56cefeff7"
+      `ws://localhost:7991/websocket/log?access_key=${accessKey}`
     );
     ws.onopen = function () {
       console.log("WebSocket connection established.");
@@ -30,18 +31,26 @@ const Log: FC = () => {
     };
 
     ws.onmessage = function (event) {
-      const logMessage = event.data;
+      const logMessages = event.data.split("\n\n").slice(1);
       setData((prevMessages) => [
         ...prevMessages,
-        {
-          id: index++,
-          message: logMessage,
-        },
+        ...logMessages.map((item) => {
+          return {
+            id: index++,
+            message: item,
+          };
+        }),
       ]);
     };
+  };
+
+  // 实时日志
+  useEffect(() => {
+    connect();
   }, []);
 
   const formatterString = (logStr: string) => {
+    const isCommand = logStr.includes("命令");
     const arr = logStr.split("[").map((item) => {
       return item.split("]");
     });
@@ -49,7 +58,7 @@ const Log: FC = () => {
     const time = arr[1][0];
     const info = arr[2][0];
     const path = arr[3][0];
-    const message = arr[3][1];
+    const message = isCommand ? arr[4].join(" ") : arr[3][1];
 
     return {
       time,
@@ -78,7 +87,7 @@ const Log: FC = () => {
     const obj = formatterString(item.message);
     return (
       <React.Fragment key={item.id}>
-        <List.Item style={{ color: "black" }}>
+        <List.Item style={{ color: "black", padding: "5px 0 5px 10px" }}>
           <Space>
             <Badge
               count={<ClockCircleOutlined style={{ color: "#f5222d" }} />}
@@ -99,6 +108,33 @@ const Log: FC = () => {
 
   return (
     <div id="logsDiv" ref={logsDiv} style={{ backgroundColor: "white" }}>
+      <Space style={{ marginBottom: 20 }}>
+        <Button
+          type="primary"
+          danger={!isPaused}
+          onClick={() => {
+            if (isPaused) {
+              setIsPaused(false);
+              socket.send('{"action":"resume"}');
+            } else {
+              setIsPaused(true);
+              socket.send('{"action":"pause"}');
+            }
+          }}
+        >
+          {isPaused ? "继续" : "暂停"}
+        </Button>
+
+        <Button
+          type="primary"
+          style={{ backgroundColor: "green" }}
+          onClick={() => {
+            setData([]);
+          }}
+        >
+          清屏
+        </Button>
+      </Space>
       {logType === LogType.actual ? (
         <List
           bordered
