@@ -1,15 +1,16 @@
 import React, { FC, useEffect, useRef, useState } from "react";
-import { ClockCircleOutlined } from "@ant-design/icons";
+import { ClockCircleOutlined, RightOutlined } from "@ant-design/icons";
 import VirtualList from "rc-virtual-list";
 import { Badge, List, Space, Tag, Button } from "antd";
 import { accessKey } from "@/utils/request";
-let index = 0;
+import styles from "./index.module.scss";
 
 enum LogType {
   history = "history",
   actual = "actual",
 }
 
+let index = 0;
 const Log: FC = () => {
   const logsDiv = useRef<any>(null);
   const [data, setData] = useState<any[]>([]);
@@ -49,8 +50,18 @@ const Log: FC = () => {
     connect();
   }, []);
 
+  // 日志处理
   const formatterString = (logStr: string) => {
-    const isCommand = logStr.includes("命令");
+    const targetChar = "]";
+    let index = -1;
+    let count = 0;
+
+    while ((index = logStr.indexOf(targetChar, index + 1)) !== -1) {
+      count++;
+      if (count === 3) {
+        break;
+      }
+    }
     const arr = logStr.split("[").map((item) => {
       return item.split("]");
     });
@@ -58,13 +69,16 @@ const Log: FC = () => {
     const time = arr[1][0];
     const info = arr[2][0];
     const path = arr[3][0];
-    const message = isCommand ? arr[4].join(" ") : arr[3][1];
+    const message = logStr.slice(index + 1);
+    const messages = message.split("\n").filter((item) => item !== "");
 
     return {
+      log: logStr,
       time,
       info,
       path,
       message,
+      messages,
     };
   };
 
@@ -87,19 +101,37 @@ const Log: FC = () => {
     const obj = formatterString(item.message);
     return (
       <React.Fragment key={item.id}>
-        <List.Item style={{ color: "black", padding: "5px 0 5px 10px" }}>
+        <List.Item
+          style={{ color: "black", padding: "5px 10px 5px 10px" }}
+          className={styles.logColumn}
+        >
           <Space>
             <Badge
-              count={<ClockCircleOutlined style={{ color: "#f5222d" }} />}
+              count={
+                <ClockCircleOutlined
+                  style={{ color: "#f5222d" }}
+                  rev={undefined}
+                />
+              }
             />
-            <span>{obj.time}</span>
+            <span style={{ flexShrink: 0 }}>{obj.time}</span>
             <Tag
               color={getTagByText(obj.info)}
               style={{ width: 60, textAlign: "center" }}
             >
               {obj.info}
             </Tag>
-            <span>{obj.message}</span>
+            <span>
+              {obj.messages.map((item, index) => {
+                return (
+                  <React.Fragment key={index}>
+                    <RightOutlined rev={undefined} />
+                    {item}
+                    <br />
+                  </React.Fragment>
+                );
+              })}
+            </span>
           </Space>
         </List.Item>
       </React.Fragment>

@@ -1,0 +1,8 @@
+.logColumn {
+  :global {
+    .ant-space-item:not(:last-child) {
+      flex-shrink: 0;
+      align-self: flex-start;
+    }
+  }
+}
