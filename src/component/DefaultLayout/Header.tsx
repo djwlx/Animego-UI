@@ -40,7 +40,9 @@ const Head: FC = () => {
   return (
     <Header style={{ position: "sticky", top: 0, zIndex: 1, width: "100%" }}>
       <div style={{ display: "flex" }}>
-        <span style={{ fontSize: 20, color: "white" }}>AnimeGo</span>
+        <span style={{ fontSize: 20, color: "white", marginRight: 20 }}>
+          AnimeGo
+        </span>
         <Menu
           style={{ flex: 1 }}
           theme="dark"
