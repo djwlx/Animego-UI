@@ -5,9 +5,10 @@ import Index from "@/pages";
 import Second from "@/pages/second";
 import Log from "@/pages/Log";
 
+const { BASE_URL } = import.meta.env;
 export const routers: RouteObject[] = [
   {
-    path: "/",
+    path: BASE_URL,
     element: <DefaultLayout />,
     errorElement: <h1>页面发生错误</h1>,
     children: [

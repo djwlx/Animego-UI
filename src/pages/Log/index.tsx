@@ -2,7 +2,6 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import { ClockCircleOutlined, RightOutlined } from "@ant-design/icons";
 import VirtualList from "rc-virtual-list";
 import { Badge, List, Space, Tag, Button } from "antd";
-import { accessKey } from "@/utils/request";
 import styles from "./index.module.scss";
 
 enum LogType {
@@ -17,10 +16,11 @@ const Log: FC = () => {
   const [logType, setLogType] = useState<LogType>(LogType.actual);
   const [socket, setSocket] = useState<any>();
   const [isPaused, setIsPaused] = useState<boolean>(false);
+  const key = localStorage.getItem("access_key");
 
   const connect = () => {
     const ws = new WebSocket(
-      `ws://localhost:7991/websocket/log?access_key=${accessKey}`
+      `ws://localhost:7991/websocket/log?access_key=${key}`
     );
     ws.onopen = function () {
       console.log("WebSocket connection established.");

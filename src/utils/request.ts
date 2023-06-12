@@ -1,13 +1,30 @@
+import { message } from "antd";
 import axios from "axios";
+const { MODE } = import.meta.env;
 
-export const accessKey =
-  "10464d5c99713773e5c0480e628927198ce5b92d0754a411cb602ad56cefeff7";
+console.log(MODE, "mode");
+export const host =
+  MODE === "development" ? `http://localhost:7991` : location.origin;
 
 const request = axios.create({
-  baseURL: "http://localhost:7991/api",
-  headers: {
-    "Access-Key": accessKey,
-  },
+  baseURL: `${host}/api`,
+});
+
+request.interceptors.request.use((config) => {
+  const access_key = localStorage.getItem("access_key");
+
+  if (access_key) {
+    config.headers["Access-Key"] = access_key;
+  }
+
+  return config;
+});
+
+request.interceptors.response.use((res) => {
+  if (res.data.code === 300) {
+    message.error(res.data.msg);
+  }
+  return res;
 });
 
 export default request;
