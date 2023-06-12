@@ -2,9 +2,7 @@ import { message } from "antd";
 import axios from "axios";
 const { MODE } = import.meta.env;
 
-console.log(MODE, "mode");
-export const host =
-  MODE === "development" ? `http://localhost:7991` : location.origin;
+export const host = `http://localhost:7991`;
 
 const request = axios.create({
   baseURL: `${host}/api`,
